@@ -2,7 +2,7 @@
     use Carbon\Carbon;
 @endphp
 
-@extends('admin.layouts.default')
+@extends('ketua.layouts.default')
 
 @section('judul','Kas')
 

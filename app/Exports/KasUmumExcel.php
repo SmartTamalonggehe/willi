@@ -6,10 +6,11 @@ namespace App\Exports;
 use App\Models\Kas;
 use Illuminate\Support\Carbon;
 use Illuminate\Contracts\View\View;
+use Spatie\QueryBuilder\QueryBuilder;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Events\AfterSheet;
-use Maatwebsite\Excel\Concerns\WithEvents;
 
+use Maatwebsite\Excel\Concerns\WithEvents;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
@@ -35,21 +36,41 @@ class KasUmumExcel implements FromView, ShouldAutoSize, WithEvents
         $pemasukanLalu=0;
         $pengeluaranLalu=0;
         $perpuluhanLalu=0;
+        $presentaseLalu=0;
+
         $saldoLalu=0;
         $sisaSaldo=0;
+        $presentaseSkrg=0;
 
         $kas = Kas::orderBy('tgl_kas')->whereMonth('tgl_kas', $this->bulan)->whereYear('tgl_kas',$this->tahun)->get();
 
         $totalLalu = Kas::orderBy('tgl_kas')->with('transaksi')->whereMonth('tgl_kas', '<', $this->bulan)->whereYear('tgl_kas',$this->tahun)->get();
 
+        $forPersenLalu = QueryBuilder::for(Kas::orderBy('tgl_kas')
+                    ->whereMonth('tgl_kas','<', $this->bulan)
+                    ->whereYear('tgl_kas',$this->tahun))
+                    ->with('transaksi')
+                    ->allowedFilters(['transaksi.nm_transaksi'])
+                    ->get();
 
         $totalSkrg = Kas::orderBy('tgl_kas')->with('transaksi')->whereMonth('tgl_kas', $this->bulan)->whereYear('tgl_kas',$this->tahun)->get();
+
+        $forPersenSkrg = QueryBuilder::for(Kas::orderBy('tgl_kas')
+                    ->whereMonth('tgl_kas', $this->bulan)
+                    ->whereYear('tgl_kas',$this->tahun))
+                    ->with('transaksi')
+                    ->allowedFilters(['transaksi.nm_transaksi'])
+                    ->get();
 
         // Perulangan Perpuluhan Bulan Lalu
         foreach ($totalLalu->where('transaksi.nm_transaksi','LIKE','Perpuluhan') as $item){
         $perpuluhanLalu+=$item->pemasukan;
         }
 
+        // Perulangan Persen Bulan Lalu
+        foreach ($forPersenLalu as $item){
+            $presentaseLalu+=$item->pemasukan;
+        }
 
         // Perulangan Saldo Bln Lalu
         foreach ($totalLalu as $item) {
@@ -61,8 +82,8 @@ class KasUmumExcel implements FromView, ShouldAutoSize, WithEvents
         // Rumus Menghitung Saldo Bln Lalu
         // Saldo setelah dipotong perpuluhan
         $saldoLalu=$saldoLalu-$perpuluhanLalu;
-        $swj40Lalu=((40/100)*$saldoLalu) + $perpuluhan;
-        $swj20Lalu=(20/100)*$saldoLalu;
+        $swj40Lalu=((40/100)*$presentaseLalu) + $perpuluhan;
+        $swj20Lalu=(20/100)*$presentaseLalu;
 
         $saldoLalu=$saldoLalu-($swj40Lalu+$swj20Lalu);
 
@@ -73,8 +94,12 @@ class KasUmumExcel implements FromView, ShouldAutoSize, WithEvents
             $saldoSkrg= $pemasukan-$pengeluaran;
         }
         // Perulangan Perpuluhan Sekarang
-        foreach ($totalSkrg->where('transaksi.nm_transaksi','LIKE','Perpuluhan') as $item){
+        foreach ($totalSkrg->where('transaksi.nm_transaksi','Perpuluhan') as $item){
             $perpuluhan+=$item->pemasukan;
+        }
+        // Perulangan Persentae Sekarang
+        foreach ($forPersenSkrg as $item){
+            $presentaseSkrg+=$item->pemasukan;
         }
 
         // Rumus Saldo Sekarang
@@ -90,6 +115,7 @@ class KasUmumExcel implements FromView, ShouldAutoSize, WithEvents
         return view('admin.exports.excel', [
             'kas'=>$kas,
             'saldo_awal'=>$saldoLalu,
+            'presentaseSkrg'=>$presentaseSkrg,
             'sisaSaldo'=>$sisaSaldo,
             'perpuluhan'=>$perpuluhan,
         ]);

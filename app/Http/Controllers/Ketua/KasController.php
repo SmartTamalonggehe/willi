@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Ketua;
 
 use Carbon\Carbon;
 use App\Models\Kas;
@@ -109,7 +109,7 @@ class KasController extends Controller
         }
 
             if ($request->ajax()) {
-                $view = view('admin.kas.data', [
+                $view = view('ketua.kas.data', [
                     'kas'=>$kas,
                     'saldo_awal'=>$saldoLalu,
                     'presentaseSkrg'=>$presentaseSkrg,
@@ -118,7 +118,7 @@ class KasController extends Controller
                 ]);
                 return $view;
             }
-            return view('admin.kas.index',[
+            return view('ketua.kas.index',[
                 'tahun'=>$tahun,
             ]);
 

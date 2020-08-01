@@ -44,6 +44,8 @@ class RouteServiceProvider extends ServiceProvider
     {
         $this->mapAdminRoutes();
 
+        $this->mapKetuaRoutes();
+
         $this->mapApiRoutes();
 
         $this->mapWebRoutes();
@@ -63,7 +65,21 @@ class RouteServiceProvider extends ServiceProvider
         Route::middleware('web','auth','role:Bendahara')
             ->prefix('admin')
             ->namespace($this->namespace . '\Admin')
-            ->group(base_path('routes/admin.php'));     
+            ->group(base_path('routes/admin.php'));
+    }
+    /**
+     * Define the "web" routes for the application.
+     *
+     * These routes all receive session state, CSRF protection, etc.
+     *
+     * @return void
+     */
+    protected function mapKetuaRoutes()
+    {
+        Route::middleware('web','auth','role:Ketua')
+            ->prefix('ketua')
+            ->namespace($this->namespace . '\Ketua')
+            ->group(base_path('routes/ketua.php'));
     }
 
     /**

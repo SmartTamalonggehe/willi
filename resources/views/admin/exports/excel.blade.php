@@ -93,92 +93,125 @@
           </tr>
         </thead>
         <tbody>
-          @if ($kas->count()!=0)
-          <tr>
-            <td colspan="5">Sisa Saldo</td>
-            <td>@currency ($saldo)</td>
-          </tr>
-          @endif
-          @forelse ($kas as $item)
+            @if ($kas->count()!=0)
+            <tr>
+              <td colspan="5">Sisa Saldo</td>
+              <td>@currency ($saldo)</td>
+            </tr>
+            @endif
+            @forelse ($kas as $item)
 
-          <tr>
-            <td>{{ $loop->iteration }}</td>
-            <td>{{ Carbon::parse($item->tgl_kas)->format('d-m-Y') }}</td>
-            <td>
-              {{ $item->transaksi->nm_transaksi }}
-            </td>
-            <td>
-              @if ($item->pemasukan==0)
-                  -
-              @else
-                @php
-                    $pemasukan+=$item->pemasukan
-                @endphp
-                @currency($item->pemasukan)
-              @endif
-            </td>
-            <td>
-              @if ($item->pengeluaran==0)
-                  -
-              @else
-                @php
-                    $pengeluaran+=$item->pengeluaran
-                @endphp
-                @currency($item->pengeluaran)
-              @endif
-            </td>
-            <td>
-              @if ($item->pengeluaran==0)
-                @currency($saldo=$item->pemasukan+$saldo)
-              @endif
-              @if ($item->pemasukan==0)
-                @currency($saldo=$saldo-$item->pengeluaran)
-              @endif
-            </td>
-          </tr>
+            <tr>
+              <td>{{ $loop->iteration }}</td>
+              <td>{{ Carbon::parse($item->tgl_kas)->format('d-m-Y') }}</td>
+              <td>
+                {{ $item->transaksi->nm_transaksi }}
+              </td>
+              <td>
+                @if ($item->pemasukan==0)
+                    -
+                @else
+                  @php
+                      $pemasukan+=$item->pemasukan
+                  @endphp
+                  @currency($item->pemasukan)
+                @endif
+              </td>
+              <td>
+                @if ($item->pengeluaran==0)
+                    -
+                @else
+                  @php
+                      $pengeluaran+=$item->pengeluaran
+                  @endphp
+                  @currency($item->pengeluaran)
+                @endif
+              </td>
+              <td>
+                @if ($item->pengeluaran==0)
+                  @currency($saldo=$item->pemasukan+$saldo)
+                @endif
+                @if ($item->pemasukan==0)
+                  @currency($saldo=$saldo-$item->pengeluaran)
+                @endif
+              </td>
+            </tr>
 
-          @empty
+            @empty
+                <td colspan="6" class="text-center">Silahkan Memilih Tahun dan Bulan</td>
+            @endforelse
+            @if ($kas->count()!=0)
+            {{-- Menetapkan Saldo dikurang perpuluahan --}}
+            @php
+                $saldoAkhir=$saldo;
+            @endphp
+            <tr class="text-bold">
+              <td>-</td>
+              <td>-</td>
+              <td>Total Derma dan Pengucapan Syukur @currency($presentaseSkrg)</td>
+              <td>-</td>
+              <td>-</td>
+              <td>-</td>
+            </tr>
+            <tr class="text-bold">
+              <td>-</td>
+              <td>-</td>
+              <td>SWJ 40% Sinode + Perpuluhan</td>
+              <td>-</td>
+              <td>@currency($Swj40PerPul=((40/100)*$presentaseSkrg)+$perpuluhan)</td>
+              <td>@currency($saldo=$saldo-$Swj40PerPul)</td>
+            </tr>
+            <tr>
+              <td>-</td>
+              <td>-</td>
+              <td>SWJ 20% Klasis</td>
+              <td>-</td>
+              <td>@currency($swj20=(20/100)*$presentaseSkrg)</td>
+              <td>@currency($saldo=$saldo-$swj20)</td>
+            </tr>
+            <tr class="font-weight-bold">
+              <td colspan="3" class="text-center">Total </td>
+              <td>
+                @currency($pemasukan)
+              </td>
+              <td>
+                @currency($pengeluaran=$pengeluaran+$Swj40PerPul+$swj20)
+              </td>
+              <td>
 
-          @endforelse
-          @if ($kas->count()!=0)
-          {{-- Menetapkan Saldo dikurang perpuluahan --}}
-          @php
-              $saldoNoPerpu=$saldo-$perpuluhan;
-              $saldoAkhir=$saldo;
-          @endphp
-          <tr class="text-bold">
-            <td>-</td>
-            <td>-</td>
-            <td>SWJ 40% Sinode + Perpuluhan</td>
-            <td>-</td>
-            <td>@currency($Swj40PerPul=((40/100)*$saldoNoPerpu)+$perpuluhan)</td>
-            <td>@currency($saldo=$saldo-$Swj40PerPul)</td>
-          </tr>
-          <tr>
-            <td>-</td>
-            <td>-</td>
-            <td>SWJ 20% Klasis</td>
-            <td>-</td>
-            <td>@currency($swj20=(20/100)*$saldoNoPerpu)</td>
-            <td>@currency($saldo=$saldo-$swj20)</td>
-          </tr>
-          <tr class="font-weight-bold">
-            <td colspan="3" class="text-center">Total </td>
-            <td>
-              @currency($pemasukan)
-            </td>
-            <td>
-              @currency($pengeluaran=$pengeluaran+$Swj40PerPul+$swj20)
-            </td>
-            <td>
-
-            </td>
-          </tr>
-          <tr class="font-weight-bold">
-            <td colspan="5" class="text-center">Sisa Saldo</td>
-            <td>@currency($saldo)</td>
-          </tr>
-          @endif
+              </td>
+            </tr>
+            <tr class="font-weight-bold">
+              <td colspan="5" class="text-center">Sisa Saldo</td>
+              <td>@currency($saldo)</td>
+            </tr>
+            @endif
+            <tr>
+            </tr>
+            <tr>
+            </tr>
+            <tr>
+            </tr>
+            <tr>
+            </tr>
+            <tr>
+                <td></td>
+                <td colspan="2">Ketua Jemaat</td>
+                <td></td>
+                <td colspan="2">Bendahara</td>
+            </tr>
+            <tr>
+            </tr>
+            <tr>
+            </tr>
+            <tr>
+            </tr>
+            <tr>
+                <td></td>
+                <td colspan="2">Pdt.Rode Yuliana. Andoi S.Th</td>
+                <td></td>
+                <td colspan="2">Pnt.Barbalince. Andarek</td>
+            </tr>
         </tbody>
     </table>
 </body>
