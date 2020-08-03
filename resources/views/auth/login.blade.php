@@ -12,6 +12,12 @@ Purchase: https://1.envato.market/EA4JP
 Renew Support: https://1.envato.market/EA4JP
 License: You must have a valid license purchased only from themeforest(the above link) in order to legally use the theme for your project.
 -->
+<style>
+    .gambarGereja{
+        background: url('/images/gereja.jpeg') no-repeat;
+        background-size: 100% 100%;
+    }
+</style>
 <html lang="en">
 	<!--begin::Head-->
 	<head>
@@ -47,7 +53,7 @@ License: You must have a valid license purchased only from themeforest(the above
 			<!--begin::Login-->
 			<div class="login login-1 login-signin-on d-flex flex-column flex-lg-row flex-column-fluid bg-white" id="kt_login">
 				<!--begin::Aside-->
-				<div class="login-aside d-flex flex-column flex-row-auto" style="background-image: url(/images/gereja.jpeg);">
+				<div class="login-aside d-flex flex-column flex-row-auto gambarGereja">
 					<!--begin::Aside Top-->
 					<div class="d-flex flex-column-auto flex-column pt-lg-40 pt-15">
 						<!--begin::Aside header-->
@@ -56,8 +62,8 @@ License: You must have a valid license purchased only from themeforest(the above
 						</a>
 						<!--end::Aside header-->
 						<!--begin::Aside title-->
-						<h3 class="font-weight-bolder text-center font-size-h4 font-size-h1-lg" style="color: #986923;">Gereja
-						<br />Foto Gereja</h3>
+						<h3 class="font-weight-bolder text-center font-size-h4 font-size-h1-lg" style="color: #986923;">
+						<br /></h3>
 						<!--end::Aside title-->
 					</div>
 					<!--end::Aside Top-->
