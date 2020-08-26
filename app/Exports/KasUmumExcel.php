@@ -19,11 +19,13 @@ class KasUmumExcel implements FromView, ShouldAutoSize, WithEvents
 
     private $tahun;
     private $bulan;
+    private $bulan_akhir;
 
-    public function __construct($tahun,$bulan)
+    public function __construct($tahun,$bulan,$bulan_akhir)
     {
          $this->tahun = $tahun;
          $this->bulan = $bulan;
+         $this->bulan_akhir = $bulan_akhir;
     }
 
     public function view(): View
@@ -42,7 +44,11 @@ class KasUmumExcel implements FromView, ShouldAutoSize, WithEvents
         $sisaSaldo=0;
         $presentaseSkrg=0;
 
-        $kas = Kas::orderBy('tgl_kas')->whereMonth('tgl_kas', $this->bulan)->whereYear('tgl_kas',$this->tahun)->get();
+        $kas = Kas::orderBy('tgl_kas')
+        ->whereBetween('tgl_kas', ["$this->tahun-$this->bulan-01","$this->tahun-$this->bulan_akhir-31"])
+            ->get();
+
+
 
         $totalLalu = Kas::orderBy('tgl_kas')->with('transaksi')->whereMonth('tgl_kas', '<', $this->bulan)->whereYear('tgl_kas',$this->tahun)->get();
 

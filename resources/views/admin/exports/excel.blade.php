@@ -83,14 +83,14 @@
         <tr>
             <th></th>
         </tr>
-          <tr>
+        <tr>
             <th>No</th>
             <th>Tgl Kas</th>
             <th>Uraian</th>
             <th>Pemasukan</th>
             <th>Pengeluaran</th>
             <th>Saldo</th>
-          </tr>
+        </tr>
         </thead>
         <tbody>
             @if ($kas->count()!=0)
@@ -141,7 +141,7 @@
                 <td colspan="6" class="text-center">Silahkan Memilih Tahun dan Bulan</td>
             @endforelse
             @if ($kas->count()!=0)
-            {{-- Menetapkan Saldo dikurang perpuluahan --}}
+
             @php
                 $saldoAkhir=$saldo;
             @endphp
@@ -187,12 +187,16 @@
             </tr>
             @endif
             <tr>
+                <td colspan="6"></td>
             </tr>
             <tr>
+                <td colspan="6"></td>
             </tr>
             <tr>
+                <td colspan="6"></td>
             </tr>
             <tr>
+                <td colspan="6"></td>
             </tr>
             <tr>
                 <td></td>
@@ -201,10 +205,13 @@
                 <td colspan="2">Bendahara</td>
             </tr>
             <tr>
+                <td colspan="6" height=50px></td>
             </tr>
             <tr>
+                <td colspan="6"></td>
             </tr>
             <tr>
+                <td colspan="6"></td>
             </tr>
             <tr>
                 <td></td>

@@ -10,6 +10,8 @@ use App\Http\Controllers\Controller;
 use Maatwebsite\Excel\Facades\Excel;
 use Spatie\QueryBuilder\QueryBuilder;
 
+use Barryvdh\DomPDF\Facade as PDF;
+
 class KasController extends Controller
 {
     public function tampilKas(Request $request)
@@ -33,11 +35,15 @@ class KasController extends Controller
             return Carbon::parse($d->tgl_kas)->format('Y');
         });
 
-        $kas = Kas::orderBy('tgl_kas')->whereMonth('tgl_kas', $request->bulan)->whereYear('tgl_kas',$request->tahun)->get();
+        $kas = Kas::orderBy('tgl_kas')
+            ->whereBetween('tgl_kas', ["$request->tahun-$request->bulan-01","$request->tahun-$request->bulan_akhir-31"])
+                ->get();
 
-        if ($request->tahun and $request->bulan) {
+        if ($request->tahun and $request->bulan or $request->bulan_akhir) {
 
-            $kas = Kas::orderBy('tgl_kas')->whereMonth('tgl_kas', $request->bulan)->whereYear('tgl_kas',$request->tahun)->get();
+            $kas = Kas::orderBy('tgl_kas')
+            ->whereBetween('tgl_kas', ["$request->tahun-$request->bulan-01","$request->tahun-$request->bulan_akhir-31"])
+                ->get();
 
             $totalLalu = Kas::orderBy('tgl_kas')->with('transaksi')->whereMonth('tgl_kas', '<', $request->bulan)->whereYear('tgl_kas',$request->tahun)->get();
 
@@ -126,6 +132,107 @@ class KasController extends Controller
 
     public function kasExportExcel(Request $request)
     {
-        return Excel::download(new KasUmumExcel($request->tahun,$request->bulan), "Buku Kas Umum $request->bulan $request->tahun.xlsx");
+        return Excel::download(new KasUmumExcel($request->tahun,$request->bulan,$request->bulan_akhir), "Buku Kas Umum $request->bulan $request->tahun.xlsx");
+    }
+
+    public function kasExportPdf(Request $request)
+    {
+        $pemasukan=0;
+        $pengeluaran=0;
+        $perpuluhan=0;
+        $saldoSkrg=0;
+
+        $pemasukanLalu=0;
+        $pengeluaranLalu=0;
+        $perpuluhanLalu=0;
+        $presentaseLalu=0;
+
+        $saldoLalu=0;
+        $sisaSaldo=0;
+        $presentaseSkrg=0;
+
+        $kas = Kas::orderBy('tgl_kas')
+        ->whereBetween('tgl_kas', ["$request->tahun-$request->bulan-01","$request->tahun-$request->bulan_akhir-31"])
+            ->get();
+
+
+
+        $totalLalu = Kas::orderBy('tgl_kas')->with('transaksi')->whereMonth('tgl_kas', '<', $request->bulan)->whereYear('tgl_kas',$request->tahun)->get();
+
+        $forPersenLalu = QueryBuilder::for(Kas::orderBy('tgl_kas')
+                    ->whereMonth('tgl_kas','<', $request->bulan)
+                    ->whereYear('tgl_kas',$request->tahun))
+                    ->with('transaksi')
+                    ->allowedFilters(['transaksi.nm_transaksi'])
+                    ->get();
+
+        $totalSkrg = Kas::orderBy('tgl_kas')->with('transaksi')->whereMonth('tgl_kas', $request->bulan)->whereYear('tgl_kas',$request->tahun)->get();
+
+        $forPersenSkrg = QueryBuilder::for(Kas::orderBy('tgl_kas')
+                    ->whereMonth('tgl_kas', $request->bulan)
+                    ->whereYear('tgl_kas',$request->tahun))
+                    ->with('transaksi')
+                    ->allowedFilters(['transaksi.nm_transaksi'])
+                    ->get();
+
+        // Perulangan Perpuluhan Bulan Lalu
+        foreach ($totalLalu->where('transaksi.nm_transaksi','LIKE','Perpuluhan') as $item){
+        $perpuluhanLalu+=$item->pemasukan;
+        }
+
+        // Perulangan Persen Bulan Lalu
+        foreach ($forPersenLalu as $item){
+            $presentaseLalu+=$item->pemasukan;
+        }
+
+        // Perulangan Saldo Bln Lalu
+        foreach ($totalLalu as $item) {
+            $pemasukanLalu += $item->pemasukan;
+            $pengeluaranLalu += $item->pengeluaran;
+            $saldoLalu= $pemasukanLalu-$pengeluaranLalu;
+        }
+
+        // Rumus Menghitung Saldo Bln Lalu
+        // Saldo setelah dipotong perpuluhan
+        $saldoLalu=$saldoLalu-$perpuluhanLalu;
+        $swj40Lalu=((40/100)*$presentaseLalu) + $perpuluhan;
+        $swj20Lalu=(20/100)*$presentaseLalu;
+
+        $saldoLalu=$saldoLalu-($swj40Lalu+$swj20Lalu);
+
+        // Perulangan Saldo Sekarang
+        foreach ($totalSkrg as $item) {
+            $pemasukan += $item->pemasukan;
+            $pengeluaran += $item->pengeluaran;
+            $saldoSkrg= $pemasukan-$pengeluaran;
+        }
+        // Perulangan Perpuluhan Sekarang
+        foreach ($totalSkrg->where('transaksi.nm_transaksi','Perpuluhan') as $item){
+            $perpuluhan+=$item->pemasukan;
+        }
+        // Perulangan Persentae Sekarang
+        foreach ($forPersenSkrg as $item){
+            $presentaseSkrg+=$item->pemasukan;
+        }
+
+        // Rumus Saldo Sekarang
+        // Saldo setelah dipotong perpuluhan
+        $saldoSkrg=$saldoSkrg-$perpuluhan;
+        $swj40=(40/100)*$saldoSkrg;
+        $swj40Perpuluahan=$swj40 + $perpuluhan;
+        $swj20=(20/100)*$saldoSkrg;
+
+        $sisaSaldo=$saldoSkrg-($swj40+$swj20);
+
+        $pdf = PDF::loadview('admin.exports.excel', [
+            'kas'=>$kas,
+            'saldo_awal'=>$saldoLalu,
+            'presentaseSkrg'=>$presentaseSkrg,
+            'sisaSaldo'=>$sisaSaldo,
+            'perpuluhan'=>$perpuluhan,
+        ]);
+        // $pdf->setPaper('A4', 'portal');
+        return $pdf->stream('Kas Umum.pdf');
+
     }
 }
