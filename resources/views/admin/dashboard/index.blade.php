@@ -23,7 +23,7 @@
             </div>
             <div class="card-body">
                 <!--begin::Chart-->
-                <div id="grafik"></div>
+                <div id="chart"></div>
                 <!--end::Chart-->
             </div>
         </div>
@@ -115,11 +115,17 @@
 	<!--end::Page Vendors-->
 	<!--begin::Page Scripts(used by this page)-->
     <script src="{{ asset('toolsAdmin/js/pages/widgets.js?v=7.0.5') }}"></script>
-    <script src="{{ asset('toolsAdmin/js/pages/features/charts/apexcharts.js?v=7.0.5') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <!--end::Page Scripts-->
 
     {{-- Grafik --}}
     <script>
+        // Warna
+        const primary = '#6993FF';
+        const success = '#1BC5BD';
+        const info = '#8950FC';
+        const warning = '#FFA800';
+        const danger = '#F64E60';
         // Mengambil Data
         var pemasukan=[]
         var pengeluaran = [];
@@ -134,9 +140,9 @@
                 $.each(data.pengeluaran, function(key,val){
                     pengeluaran.push(val.pengeluaran)
                 })
+                grafik()
             })
         }
-        kasGrafik();
         // Konvert Bulan
         function bulanIndo(isiBulan){
             switch(isiBulan) {
@@ -182,58 +188,62 @@
         }
 
         // Menampilkan grafik
-        var grafik = function () {
-            const apexChart = "#grafik";
+        function grafik () {
             var options = {
-                series: [{
-                    name: 'Pemasukan',
-                    data: pemasukan
-                }, {
-                    name: 'Pengeluaran',
-                    data: pengeluaran
-                }],
-                chart: {
-                    type: 'bar',
-                    height: 350
-                },
-                plotOptions: {
+                    series: [{
+                        name: 'Pemasukan',
+                        data: pemasukan
+                    }, {
+                        name: 'Pengeluaran',
+                        data: pengeluaran
+                    }],
+                    chart: {
+                        type: 'bar',
+                        height: 350
+                    },
+                    plotOptions: {
                     bar: {
                         horizontal: false,
                         columnWidth: '55%',
                         endingShape: 'rounded'
                     },
-                },
-                dataLabels: {
-                    enabled: false
-                },
-                stroke: {
-                    show: true,
-                    width: 2,
-                    colors: ['transparent']
-                },
-                xaxis: {
-                    categories: bulan,
-                },
-                yaxis: {
-                    title: {
-                        text: 'Rp. (Rupiah)'
-                    }
-                },
-                fill: {
-                    opacity: 1
-                },
-                tooltip: {
-                    y: {
-                        formatter: function (val) {
-                            return "Rp. " + new Intl.NumberFormat({ style: 'currency', currency: 'EUR' }).format(val);
+                    },
+                        dataLabels: {
+                        enabled: false
+                    },
+                        stroke: {
+                        show: true,
+                        width: 2,
+                        colors: ['transparent']
+                    },
+                        xaxis: {
+                        categories: bulan,
+                        },
+                        yaxis: {
+                        title: {
+                            text: '$ (thousands)'
                         }
-                    }
-                },
-                colors: [primary, danger, warning]
-            };
+                    },
+                        fill: {
+                        opacity: 1
+                    },
+                        tooltip: {
+                        y: {
+                            formatter: function (val) {
+                            return "Rp. " + val
+                            }
+                        }
+                    },
+                    colors: [primary, danger]
+                };
 
-            var chart = new ApexCharts(document.querySelector(apexChart), options);
-            chart.render();
+                    var chart = new ApexCharts(document.querySelector("#chart"), options);
+                    chart.render();
         }
+
+
+        $(document).ready(function () {
+            kasGrafik();
+        });
     </script>
 @endsection
