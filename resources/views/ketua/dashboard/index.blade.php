@@ -223,7 +223,7 @@
                         },
                         yaxis: {
                         title: {
-                            text: '$ (thousands)'
+                            text: 'Rupiah'
                         }
                     },
                         fill: {
@@ -232,7 +232,7 @@
                         tooltip: {
                         y: {
                             formatter: function (val) {
-                            return "Rp. " + val
+                                return "Rp. " + new Intl.NumberFormat({ style: 'currency', currency: 'EUR' }).format(val);
                             }
                         }
                     },
