@@ -132,7 +132,7 @@
         var pengeluaran = [];
         var bulan = [];
 
-peper        const kasGrafik = function ()
+        const kasGrafik = function ()
         {
             $.getJSON("ketua/kasGrafik", function (data){
                 $.each(data.pemasukan, function(key,val){
