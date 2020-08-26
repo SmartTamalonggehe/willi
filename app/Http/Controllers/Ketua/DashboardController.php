@@ -20,9 +20,35 @@ class DashboardController extends Controller
             ->get();
 
         $kasBulanIni=Kas::orderBy('tgl_kas')
-            ->whereYear('tgl_kas',$kasBulanIni)
+            ->whereMonth('tgl_kas',$kasBulanIni)
+            ->whereYear('tgl_kas',$tahunIni)
             ->get();
 
         return view('ketua.dashboard.index',compact('kasTahunIni','kasBulanIni'));
+    }
+
+    public function kasGrafik()
+    {
+        $tahunIni=Carbon::now()->format('Y');
+        $kasTahunIni=Kas::orderBy('tgl_kas')
+            ->whereYear('tgl_kas',$tahunIni)
+            ->get();
+
+        $pemasukan=Kas::whereYear('tgl_kas',$tahunIni)
+            ->selectRaw('SUM(pemasukan) as pemasukan, MONTH(tgl_kas) as bulan')
+            ->groupBy('bulan')->get();
+
+        $pengeluaran=Kas::whereYear('tgl_kas',$tahunIni)
+            ->selectRaw('SUM(pengeluaran) as pengeluaran, MONTH(tgl_kas) as bulan')
+            ->groupBy('bulan')->get();
+
+
+        $kasTahunIni->keyBy('tgl_kas');
+
+        return response()->json([
+            'pemasukan'=>$pemasukan,
+            'pengeluaran'=>$pengeluaran,
+
+        ]);
     }
 }

@@ -11,6 +11,25 @@
 @endsection
 
 @section('content')
+{{-- Grafik --}}
+<div class="row">
+    <div class="col-12">
+        <!--begin::Card-->
+        <div class="card card-custom gutter-b">
+            <div class="card-header">
+                <div class="card-title">
+                    <h3 class="card-label">Grafik Pemasukan dan Pengeluaran Tahun ini</h3>
+                </div>
+            </div>
+            <div class="card-body">
+                <!--begin::Chart-->
+                <div id="grafik"></div>
+                <!--end::Chart-->
+            </div>
+        </div>
+        <!--end::Card-->
+    </div>
+</div>
 
 {{-- Pemasuakn --}}
 <div class="row">
@@ -95,6 +114,126 @@
 	<script src="{{ asset('toolsAdmin/plugins/custom/fullcalendar/fullcalendar.bundle.js?v=7.0.5') }}"></script>
 	<!--end::Page Vendors-->
 	<!--begin::Page Scripts(used by this page)-->
-	<script src="{{ asset('toolsAdmin/js/pages/widgets.js?v=7.0.5') }}"></script>
-	<!--end::Page Scripts-->
+    <script src="{{ asset('toolsAdmin/js/pages/widgets.js?v=7.0.5') }}"></script>
+    <script src="{{ asset('toolsAdmin/js/pages/features/charts/apexcharts.js?v=7.0.5') }}"></script>
+    <!--end::Page Scripts-->
+
+    {{-- Grafik --}}
+    <script>
+        // Mengambil Data
+        var pemasukan=[]
+        var pengeluaran = [];
+        var bulan = [];
+        function kasGrafik()
+        {
+            $.getJSON("ketua/kasGrafik", function (data){
+                $.each(data.pemasukan, function(key,val){
+                    pemasukan.push(val.pemasukan)
+                    bulanIndo(val.bulan)
+                })
+                $.each(data.pengeluaran, function(key,val){
+                    pengeluaran.push(val.pengeluaran)
+                })
+            })
+        }
+        kasGrafik();
+        // Konvert Bulan
+        function bulanIndo(isiBulan){
+            switch(isiBulan) {
+                    case 1:
+                        bulan.push("Januari")
+                        break;
+                    case 2:
+                        bulan.push("Februari")
+                        break;
+                    case 3:
+                        bulan.push("Maret")
+                        break;
+                    case 4:
+                        bulan.push("April")
+                        break;
+                    case 5:
+                        bulan.push("Mei")
+                        break;
+                    case 6:
+                        bulan.push("Juni")
+                        break;
+                    case 7:
+                        bulan.push("Juli")
+                        break;
+                    case 8:
+                        bulan.push("Agustus")
+                        break;
+                    case 9:
+                        bulan.push("September")
+                        break;
+                    case 10:
+                        bulan.push("Oktober")
+                        break;
+                    case 11:
+                        bulan.push("November")
+                        break;
+                    case 12:
+                        bulan.push("Desember")
+                        break;
+                    default:
+                        // code block
+                    }
+        }
+
+        // Menampilkan grafik
+        var grafik = function () {
+            const apexChart = "#grafik";
+            var options = {
+                series: [{
+                    name: 'Pemasukan',
+                    data: pemasukan
+                }, {
+                    name: 'Pengeluaran',
+                    data: pengeluaran
+                }],
+                chart: {
+                    type: 'bar',
+                    height: 350
+                },
+                plotOptions: {
+                    bar: {
+                        horizontal: false,
+                        columnWidth: '55%',
+                        endingShape: 'rounded'
+                    },
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                stroke: {
+                    show: true,
+                    width: 2,
+                    colors: ['transparent']
+                },
+                xaxis: {
+                    categories: bulan,
+                },
+                yaxis: {
+                    title: {
+                        text: 'Rp. (Rupiah)'
+                    }
+                },
+                fill: {
+                    opacity: 1
+                },
+                tooltip: {
+                    y: {
+                        formatter: function (val) {
+                            return "Rp. " + new Intl.NumberFormat({ style: 'currency', currency: 'EUR' }).format(val);
+                        }
+                    }
+                },
+                colors: [primary, danger, warning]
+            };
+
+            var chart = new ApexCharts(document.querySelector(apexChart), options);
+            chart.render();
+        }
+    </script>
 @endsection
