@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', 'DashboardController@index')->name('Bendahara');
+Route::get('kasGrafik', 'DashboardController@kasGrafik')->name('kasGrafik');
 
 Route::resource('jenisPemasukan', 'JenisPemasukanController');
 Route::resource('jenisPengeluaran', 'JenisPengeluaranController');
@@ -23,5 +24,7 @@ Route::resource('pengeluaran', 'PengeluaranController');
 Route::get('/tampilKas', 'KasController@tampilKas')->name('tampilKas');
 
 Route::get('/kasExportExcel', 'KasController@kasExportExcel')->name('kasExportExcel');
+
+
 
 
