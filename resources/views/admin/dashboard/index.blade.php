@@ -135,7 +135,7 @@
             $.getJSON("admin/kasGrafik", function (data){
                 $.each(data.pemasukan, function(key,val){
                     pemasukan.push(val.pemasukan)
-                    bulanIndo(val.bulan)
+                    bulan.push(val.bulan)
                 })
                 $.each(data.pengeluaran, function(key,val){
                     pengeluaran.push(val.pengeluaran)
