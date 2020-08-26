@@ -132,12 +132,12 @@
         var pengeluaran = [];
         var bulan = [];
 
-        function kasGrafik()
+peper        const kasGrafik = function ()
         {
             $.getJSON("ketua/kasGrafik", function (data){
                 $.each(data.pemasukan, function(key,val){
+                    bulan.push(val.bulan)
                     pemasukan.push(val.pemasukan)
-                    bulanIndo(val.bulan)
                 })
                 $.each(data.pengeluaran, function(key,val){
                     pengeluaran.push(val.pengeluaran)
@@ -242,7 +242,6 @@
                     var chart = new ApexCharts(document.querySelector("#chart"), options);
                     chart.render();
         }
-
 
         $(document).ready(function () {
             kasGrafik();
