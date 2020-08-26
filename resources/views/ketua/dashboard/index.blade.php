@@ -182,7 +182,8 @@
         }
 
         // Menampilkan grafik
-        var grafik = function () {
+        var grafik = async function () {
+            await kasGrafik();
             const apexChart = "#grafik";
             var options = {
                 series: [{
