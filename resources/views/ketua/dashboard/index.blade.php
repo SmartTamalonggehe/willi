@@ -179,10 +179,9 @@
                         // code block
                     }
         }
-        grafik();
+        kasGrafik()
         // Menampilkan grafik
         async function grafik () {
-            await kasGrafik();
             const apexChart = "#grafik";
             var options = {
                 series: [{
