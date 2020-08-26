@@ -1169,7 +1169,6 @@ var KTApexChartsDemo = function() {
             _demo12();
             _demo13();
             _demo14();
-            grafik();
         }
     };
 }();

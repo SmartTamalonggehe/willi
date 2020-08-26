@@ -136,7 +136,6 @@
                 })
             })
         }
-        kasGrafik();
         // Konvert Bulan
         function bulanIndo(isiBulan){
             switch(isiBulan) {
@@ -180,9 +179,9 @@
                         // code block
                     }
         }
-
+        grafik();
         // Menampilkan grafik
-        var grafik = async function () {
+        async function grafik () {
             await kasGrafik();
             const apexChart = "#grafik";
             var options = {
