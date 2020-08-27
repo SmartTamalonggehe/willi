@@ -224,13 +224,27 @@ class KasController extends Controller
 
         $sisaSaldo=$saldoSkrg-($swj40+$swj20);
 
-        $pdf = PDF::loadview('admin.exports.excel', [
+        $pdf = PDF::loadview('admin.exports.pdf', [
             'kas'=>$kas,
             'saldo_awal'=>$saldoLalu,
             'presentaseSkrg'=>$presentaseSkrg,
             'sisaSaldo'=>$sisaSaldo,
             'perpuluhan'=>$perpuluhan,
+            'perpuluhan'=>$perpuluhan,
+            'bulan'=>$request->bulan,
+            'bulan_akhir'=>$request->bulan_akhir,
+            'tahun'=>$request->tahun,
         ]);
+        // return view('admin.exports.pdf', [
+        //     'kas'=>$kas,
+        //     'saldo_awal'=>$saldoLalu,
+        //     'presentaseSkrg'=>$presentaseSkrg,
+        //     'sisaSaldo'=>$sisaSaldo,
+        //     'perpuluhan'=>$perpuluhan,
+        //     'bulan'=>$request->bulan,
+        //     'bulan_akhir'=>$request->bulan_akhir,
+        //     'tahun'=>$request->tahun,
+        // ]);
         // $pdf->setPaper('A4', 'portal');
         return $pdf->stream('Kas Umum.pdf');
 
