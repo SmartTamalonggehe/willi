@@ -33,11 +33,15 @@ class KasController extends Controller
             return Carbon::parse($d->tgl_kas)->format('Y');
         });
 
-        $kas = Kas::orderBy('tgl_kas')->whereMonth('tgl_kas', $request->bulan)->whereYear('tgl_kas',$request->tahun)->get();
+        $kas = Kas::orderBy('tgl_kas')
+            ->whereBetween('tgl_kas', ["$request->tahun-$request->bulan-01","$request->tahun-$request->bulan_akhir-31"])
+                ->get();
 
-        if ($request->tahun and $request->bulan) {
+        if ($request->tahun and $request->bulan or $request->bulan_akhir) {
 
-            $kas = Kas::orderBy('tgl_kas')->whereMonth('tgl_kas', $request->bulan)->whereYear('tgl_kas',$request->tahun)->get();
+            $kas = Kas::orderBy('tgl_kas')
+            ->whereBetween('tgl_kas', ["$request->tahun-$request->bulan-01","$request->tahun-$request->bulan_akhir-31"])
+                ->get();
 
             $totalLalu = Kas::orderBy('tgl_kas')->with('transaksi')->whereMonth('tgl_kas', '<', $request->bulan)->whereYear('tgl_kas',$request->tahun)->get();
 
@@ -126,6 +130,6 @@ class KasController extends Controller
 
     public function kasExportExcel(Request $request)
     {
-        return Excel::download(new KasUmumExcel($request->tahun,$request->bulan), "Buku Kas Umum $request->bulan $request->tahun.xlsx");
+        return Excel::download(new KasUmumExcel($request->tahun,$request->bulan,$request->bulan_akhir), "Buku Kas Umum $request->bulan $request->tahun.xlsx");
     }
 }
