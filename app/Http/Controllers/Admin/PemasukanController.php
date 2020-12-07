@@ -19,18 +19,18 @@ class PemasukanController extends Controller
      */
     public function index(Request $request)
     {
-        $pemasukan=Kas::orderByDesc('tgl_kas')->with('transaksi')->get()->where('transaksi.jenis_transaksi','pemasukan');
-        $jenisPemasukan=Transaksi::orderBy('nm_transaksi')->where('jenis_transaksi','pemasukan')->get();
+        $pemasukan = Kas::orderByDesc('tgl_kas')->with('transaksi')->get()->where('transaksi.jenis_transaksi', 'pemasukan');
+        $jenisPemasukan = Transaksi::orderBy('nm_transaksi')->where('jenis_transaksi', 'pemasukan')->get();
         // return $jadwal;
-        
+
         if ($request->ajax()) {
             $view = view('admin.pemasukan.data', [
-                'pemasukan'=>$pemasukan,
+                'pemasukan' => $pemasukan,
             ]);
             return $view;
-        } 
-        return view('admin.pemasukan.index',[
-            'jenisPemasukan'=>$jenisPemasukan,
+        }
+        return view('admin.pemasukan.index', [
+            'jenisPemasukan' => $jenisPemasukan,
         ]);
     }
 
@@ -52,17 +52,15 @@ class PemasukanController extends Controller
      */
     public function store(Request $request)
     {
-        $tgl_pemasukan=Carbon::parse($request->tgl_kas)->format('Y-m-d');
-        $jmlh_pemasukan=filter_var($request->pemasukan, FILTER_SANITIZE_NUMBER_INT);
+        $tgl_pemasukan = Carbon::parse($request->tgl_kas)->format('Y-m-d');
+        $jmlh_pemasukan = filter_var($request->pemasukan, FILTER_SANITIZE_NUMBER_INT);
 
         $data = Kas::create([
-            'tgl_kas'=>$tgl_pemasukan,
-            'transaksi_id'=>$request->transaksi_id,
-            'pemasukan'=>$jmlh_pemasukan,
-            'pengeluaran'=>0,
+            'tgl_kas' => $tgl_pemasukan,
+            'transaksi_id' => $request->transaksi_id,
+            'pemasukan' => $jmlh_pemasukan,
+            'pengeluaran' => 0,
         ]);
-
-
     }
 
     /**
@@ -97,15 +95,15 @@ class PemasukanController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $tgl_pemasukan=Carbon::parse($request->tgl_pemasukan)->format('Y-m-d');
-        $jmlh_pemasukan=filter_var($request->jmlh_pemasukan, FILTER_SANITIZE_NUMBER_INT);
+        $tgl_pemasukan = Carbon::parse($request->tgl_kas)->format('Y-m-d');
+        $jmlh_pemasukan = filter_var($request->pemasukan, FILTER_SANITIZE_NUMBER_INT);
 
-        Kas::where('id',$id)
+        Kas::where('id', $id)
             ->update([
-                'tgl_pemasukan'=>$tgl_pemasukan,
-                'transaksi_id'=>$request->transaksi_id,
-                'pemasukan'=>$jmlh_pemasukan,
-                'pengeluaran'=>0,
+                'tgl_kas' => $tgl_pemasukan,
+                'transaksi_id' => $request->transaksi_id,
+                'pemasukan' => $jmlh_pemasukan,
+                'pengeluaran' => 0,
             ]);
     }
 
