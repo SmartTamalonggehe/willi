@@ -4,15 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use Carbon\Carbon;
 use App\Models\Kas;
-use Illuminate\Http\Request;
-use App\Exports\KasUmumExcel;
 use App\Http\Controllers\Controller;
-use Maatwebsite\Excel\Facades\Excel;
+use App\Models\Transaksi;
+use Illuminate\Http\Request;
 use Spatie\QueryBuilder\QueryBuilder;
 
-class KasController extends Controller
+class LapPemasukanController extends Controller
 {
-    public function tampilKas(Request $request)
+    public function pemasukan(Request $request)
     {
         $pemasukan = 0;
         $pengeluaran = 0;
@@ -28,6 +27,11 @@ class KasController extends Controller
         $sisaSaldo = 0;
         $presentaseSkrg = 0;
 
+        // Jenis Pemasukan
+        $pemasukanItem = Transaksi::where('jenis_transaksi', 'like', '% pemasukan %')
+            ->orWhere('nm_transaksi', 'like', '% unsur %')
+            ->orWhere('nm_transaksi', 'like', '% wik %')
+            ->get();
 
         $tahun = Kas::get()->keyBy(function ($d) {
             return Carbon::parse($d->tgl_kas)->format('Y');
@@ -35,12 +39,14 @@ class KasController extends Controller
 
         $kas = Kas::orderBy('tgl_kas')
             ->whereBetween('tgl_kas', ["$request->tahun-$request->bulan-01", "$request->tahun-$request->bulan_akhir-31"])
+            ->where('transaksi_id', $request->pemasukan)
             ->get();
 
         if ($request->tahun and $request->bulan or $request->bulan_akhir) {
 
             $kas = Kas::orderBy('tgl_kas')
                 ->whereBetween('tgl_kas', ["$request->tahun-$request->bulan-01", "$request->tahun-$request->bulan_akhir-31"])
+                ->where('transaksi_id', $request->pemasukan)
                 ->get();
 
             $totalLalu = Kas::orderBy('tgl_kas')->with('transaksi')->whereMonth('tgl_kas', '<', $request->bulan)->whereYear('tgl_kas', $request->tahun)->get();
@@ -48,15 +54,18 @@ class KasController extends Controller
             $forPersenLalu = QueryBuilder::for(Kas::orderBy('tgl_kas')
                 ->whereMonth('tgl_kas', '<', $request->bulan)
                 ->whereYear('tgl_kas', $request->tahun))
+                ->where('transaksi_id', $request->pemasukan)
                 ->with('transaksi')
                 ->allowedFilters(['transaksi.nm_transaksi'])
                 ->get();
 
-            $totalSkrg = Kas::orderBy('tgl_kas')->with('transaksi')->whereMonth('tgl_kas', $request->bulan)->whereYear('tgl_kas', $request->tahun)->get();
+
+            $totalSkrg = Kas::orderBy('tgl_kas')->with('transaksi')->whereMonth('tgl_kas', $request->bulan)->whereYear('tgl_kas', $request->tahun)->where('transaksi_id', $request->pemasukan)->get();
 
             $forPersenSkrg = QueryBuilder::for(Kas::orderBy('tgl_kas')
                 ->whereMonth('tgl_kas', $request->bulan)
                 ->whereYear('tgl_kas', $request->tahun))
+                ->where('transaksi_id', $request->pemasukan)
                 ->with('transaksi')
                 ->allowedFilters(['transaksi.nm_transaksi'])
                 ->get();
@@ -112,7 +121,7 @@ class KasController extends Controller
         }
 
         if ($request->ajax()) {
-            $view = view('admin.kas.data', [
+            $view = view('admin.laporan_pemasukan.data', [
                 'kas' => $kas,
                 'saldo_awal' => $saldoLalu,
                 'presentaseSkrg' => $presentaseSkrg,
@@ -121,13 +130,9 @@ class KasController extends Controller
             ]);
             return $view;
         }
-        return view('admin.kas.index', [
+        return view('admin.laporan_pemasukan.index', [
             'tahun' => $tahun,
+            'pemasukan' => $pemasukanItem,
         ]);
-    }
-
-    public function kasExportExcel(Request $request)
-    {
-        return Excel::download(new KasUmumExcel($request->tahun, $request->bulan, $request->bulan_akhir), "Buku Kas Umum $request->bulan $request->tahun.xlsx");
     }
 }
